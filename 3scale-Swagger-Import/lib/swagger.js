@@ -26,23 +26,25 @@ var PROMISE_DELAY = 1000 //in ms
 exports.import = function(path, service_id, appplan_name, method_pattern,res){
   parrser.parse(path, function(err,api){
     if(err){
-      	console.log(err);
-	res.write("<p class=\"bg-danger\">" + err.message +  "</p>");
-	res.end();
+      console.log(err);
+      res.write("<p class=\"bg-danger\">" + err.message +  "</p>");
+      res.end();
     }
+
     if(api){ //swagger valid file
       var title = api.info.title /*+Math.floor((Math.random() * 50) + 10)*/;
       if(service_id){ //update existing service
         console.log("Update existing service");
-	  threescale_waterfall(api, service_id,appplan_name,method_pattern);
+        threescale_waterfall(api, service_id,appplan_name,method_pattern);
       }else{
 	      console.log("Creating Service");
-	      var ser = services.createService(title).then(function(service){
+        var ser = services.createService(title)
+        .then(function(service){
           console.log("Service with id "+ service.id+" created on 3scale");
           res.write("<p class=\"bg-success\">Service with id "+ service.id+" created on 3scale" + "</p>"); 
-	threescale_waterfall(api, service.id, appplan_name,method_pattern,res);
-	activedocs.createActiveDocs(path);
-       });
+          threescale_waterfall(api, service.id, appplan_name,method_pattern,res);
+          activedocs.createActiveDocs(path);
+        });
      }
       cli.print({message: "Loading "+title+" swagger definition."});  
       res.write("<p class=\"bg-success\">Loading "+title+" swagger definition.");
@@ -50,8 +52,7 @@ exports.import = function(path, service_id, appplan_name, method_pattern,res){
 	  else{
 		  console.log("API Parsing Error");
 		  res.write("<p class=\"bg-danger\">API Parsing Error</p>");
-        	  res.end();
-
+      res.end();
 	  }
   });
 };
@@ -67,11 +68,9 @@ var  threescale_waterfall= function(api, service_id, appplan_name,method_pattern
     cli.print({message: "Hits metric with id "+ hit_metric.id+" found on 3scale"});
     res.write("<p class=\"bg-success\">Hits metric with id "+ hit_metric.id+" found on 3scale"+ "</p>");
 	  HIT_METRIC_ID = hit_metric.id;
-  })
-  .then(function(){
+  }).then(function(){
     return extractMethodsFromSwagger(api,method_pattern)
-  })
-  .then(function(methodsArr){ //FIXME promises & delay for methods and mapping rule creation
+  }).then(function(methodsArr){ //FIXME promises & delay for methods and mapping rule creation
     METHODS = methodsArr
     //create an array of promises for createMethod function
     var promisesArr = [];
@@ -79,32 +78,29 @@ var  threescale_waterfall= function(api, service_id, appplan_name,method_pattern
       promisesArr.push(delayed.creator(createMethodPromise, service_id,m))
     })
     return promisesArr
-  })
-  .then(function(methodsPromiseArr){
+  }).then(function(methodsPromiseArr){
     //Execute promises with delay
     var promisesArr = [];
     return delayed.series(methodsPromiseArr, PROMISE_DELAY).then((promisesArray) => {
       return promisesArray
     });
-  })
-  .then(function(threescaleMethodsArr){
+  }).then(function(threescaleMethodsArr){
     //create an array of promises for createMappingRule function
     var promisesArr = [];
     METHODS.forEach(function(m,index){
       promisesArr.push(delayed.creator(createMappingRulePromise, service_id,m,threescaleMethodsArr[index]))
     })
     return promisesArr
-  })
-  .then(function(mappingRulesPromiseArr){
+  }).then(function(mappingRulesPromiseArr){
     //Execute promises with delay
     return delayed.series(mappingRulesPromiseArr, PROMISE_DELAY).then((promisesArray) => {
       return promisesArray
     });
   })
   .done(function(){
-      res.write("<p class=\"bg-success\">Import on 3scale complete</p>");
+    res.write("<p class=\"bg-success\">Import on 3scale complete</p>");
 	  res.end();
-      cli.success({message:"Import on 3scale complete"});
+    cli.success({message:"Import on 3scale complete"});
   })
 };
 

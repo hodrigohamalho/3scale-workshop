@@ -16,7 +16,7 @@ exports.createService = function(name){
         "access_token": config.get("threescale:access_token"),
         "name": name, //TODO get rid of random
         "system_name": slug(n,"_"),
-	"description": name
+	      "description": name
       },
       rejectUnauthorized: false,
       timeout:10000
@@ -25,11 +25,11 @@ exports.createService = function(name){
 
     return response.then(function (r) {
      var res  = r[0].req.res;
-     try {
-       var body = JSON.parse(res.body);
-     } catch(e) {
-	     console.log("Error: " + e.message);
-     }
+      try {
+        var body = JSON.parse(res.body);
+      } catch(e) {
+        console.log("Error: " + e.message);
+      }
       if (res.statusCode >= 300) {
         var err = new HttpError(res.statusCode)
         var message = "ERROR encountered: "
@@ -45,7 +45,6 @@ exports.createService = function(name){
         return body.service;//assuming tapes are strings and not binary data
       }
     });
-
 };
 
 exports.listServices = function (){
