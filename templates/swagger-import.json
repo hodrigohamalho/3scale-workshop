@@ -247,13 +247,13 @@
       "displayName": "Git Repository URL",
       "description": "The URL of the repository with your application source code.",
       "required": true,
-      "value": "https://github.com/pszuster/3scaleTD"
+      "value": "https://github.com/hodrigohamalho/3scale-workshop"
     },
     {
       "name": "SOURCE_REPOSITORY_REF",
       "displayName": "Git Reference",
       "description": "Set this to a branch name, tag or other ref of your repository if you are not using the default branch.",
-	"value": "master"
+	    "value": "master"
     },
     {
       "name": "CONTEXT_DIR",
@@ -265,7 +265,7 @@
       "name": "APPLICATION_DOMAIN",
       "displayName": "Application Hostname",
       "description": "The exposed hostname that will route to the Node.js service, if left blank a value will be defaulted.",
-      "value": "swagger-import.3scale1.rhtechofficelatam.com"
+      "value": ""
     },
     {
       "name": "GITHUB_WEBHOOK_SECRET",
